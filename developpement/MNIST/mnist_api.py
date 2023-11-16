@@ -11,14 +11,20 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 app = Flask(__name__)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model_path', type=str, help='model name path') # add an argument '--model_path'
+parser.add_argument('--model_path', type=str, required=True, help='model name path') # add an argument '--model_path'
 
 args = parser.parse_args()
 model_path = args.model_path
 
 model = MNISTNet().to(device)
-# Load the model
-model.load_state_dict(torch.load(model_path))
+# Load the mode
+if torch.cuda.is_available():
+    model.load_state_dict(torch.load(model_path))
+else:
+    # Chargement sur CPU si le GPU n'est pas disponible
+    model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+
+
 model.eval()
 
 transform = transforms.Compose([
